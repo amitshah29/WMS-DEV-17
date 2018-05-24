@@ -49,6 +49,7 @@ if (@trknum = '' and @trlr_id != '')
     and l.wh_id = am.wh_id
     and lm.arecod = am.arecod
     and @+rt.trknum
+    and @+rh.invnum
   group by tr.arrdte,
         tr.close_dte,
         rl.trknum,
