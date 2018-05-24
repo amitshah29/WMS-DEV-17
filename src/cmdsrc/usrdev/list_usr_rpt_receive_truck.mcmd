@@ -1,0 +1,83 @@
+<command>
+  <name>list usr rpt receive truck</name>
+  <description>Information about trucks and the inventory received from them</description>
+  <type>Local Syntax</type>
+  <local-syntax>
+  <![CDATA[
+if (@trknum = '' and @trlr_id != '')
+{
+    [select max(trknum) trknum
+       from rcvtrk
+      where trlr_id = @trlr_id] catch(-1403)
+}
+|
+[select tr.arrdte adddte,
+        tr.close_dte,
+        rl.trknum,
+        l.stoloc,
+        rl.invnum,
+        l.lodnum,
+        d.invsts rcvsts,
+        rl.prtnum,
+        rl.supnum,
+        lm.arecod,
+        am.bldg_id,
+        sum(d.untqty) untqty,
+        rh.uc_orapon rtsnum
+   from trlr tr,
+        rcvtrk rt,
+        rimhdr rh,
+        rcvlin rl,
+        invdtl d,
+        invsub s,
+        invlod l,
+        locmst lm,
+        aremst am
+  where tr.trlr_id = rt.trlr_id
+    and rt.wh_id = rl.wh_id
+    and rt.trknum = rl.trknum
+    and rh.supnum(+) = rl.supnum
+    and rh.invnum(+) = rl.invnum
+    and rh.wh_id(+) = rl.wh_id
+    and rh.client_id(+) = rl.client_id
+    and rl.rcvkey || '' = d.rcvkey
+    and rl.prtnum || '' = d.prtnum
+    and d.subnum = s.subnum
+    and s.lodnum = l.lodnum
+    and l.wh_id = lm.wh_id
+    and l.stoloc = lm.stoloc
+    and l.wh_id = am.wh_id
+    and lm.arecod = am.arecod
+    and @+rt.trknum
+  group by tr.arrdte,
+        tr.close_dte,
+        rl.trknum,
+        rl.invnum,
+        l.lodnum,
+        d.invsts,
+        rl.prtnum,
+        am.bldg_id,
+        lm.arecod,
+        l.stoloc,
+        rl.supnum,
+        rh.uc_orapon]
+]]>
+  </local-syntax>
+
+  <argument name="trknum" datatype="string"></argument>
+  <argument name="trlr_id" datatype="string"></argument>
+
+  <documentation>
+    <remarks>
+    <![CDATA[
+<pre>
+$Id: list_usr_rpt_receive_truck.mcmd,v 1.6 2012/05/17 20:19:08 imcdermo Exp $
+</pre>
+]]>
+    </remarks>
+
+    <example></example>
+
+    <exception value="eOK">Normal successful completion</exception>
+  </documentation>
+</command>
